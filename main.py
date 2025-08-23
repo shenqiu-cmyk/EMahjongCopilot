@@ -21,12 +21,17 @@ from common import utils
 from common.log_helper import LogHelper
 from common.settings import Settings
 from bot_manager import BotManager
-
+from mjapi import mjapi
 
 def main():
     """ Main entry point """
     LogHelper.config_logging()
+    session_id = mjapi()
     setting = Settings()
+    if session_id:
+        setting.mjapi_session_id = session_id
+        setting.save_json()
+
     # utils.set_dpi_awareness()
     utils.prevent_sleep()
     bot_manager = BotManager(setting)
