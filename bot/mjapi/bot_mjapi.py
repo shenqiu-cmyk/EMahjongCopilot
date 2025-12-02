@@ -209,6 +209,14 @@ class BotMjapi(Bot):
         Returns:
             dict | None: A valid Mjai action dictionary, or None.
         """
+
+        if (reaction and isinstance(reaction, dict) and
+                self.current_mode == GameMode.MJ3P and
+                reaction.get('type') == MjaiType.KITA):
+            reaction = reaction.copy()
+            reaction['type'] = MjaiType.NUKIDORA
+            LOGGER.info("Converted API 'kita' response back to 'nukidora' for 3p mode.")
+
         # Robust check for a valid Mjai action
         if not isinstance(reaction, dict) or 'type' not in reaction:
             return None
