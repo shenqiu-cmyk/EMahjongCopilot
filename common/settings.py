@@ -11,16 +11,12 @@ DEFAULT_SETTING_FILE = 'settings.json'
 class Settings:
     """ Settings class to load and save settings to json file"""
     def __init__(self, json_file:str=DEFAULT_SETTING_FILE) -> None:
-        '手动填写session'
-        #self.mjapi_session_id = "5WG4PcxY1E781yHujGmFwo/8Ghxpks2P2YIs2GPyhIM="
-        '自动填写session'
-        self.mjapi_session_id: str = self._get_value("mjapi_session_id", "")
-
         self._json_file = json_file
         self._settings_dict:dict = self.load_json()        
-        # read settings or set default values
-        # variable names must match keys in json, for saving later
 
+        # 然后读取各个设置项，包括mjapi_session_id
+        self.mjapi_session_id: str = self._get_value("mjapi_session_id", "")
+        
         # UI settings
         self.update_url:str = self._get_value("update_url", "https://update.mjcopilot.com", self.valid_url) # not shown
         self.auto_launch_browser:bool = self._get_value("auto_launch_browser", False, self.valid_bool)
@@ -50,7 +46,8 @@ class Settings:
         self.mjapi_user:str = self._get_value("mjapi_user", "")
         self.mjapi_secret:str = self._get_value("mjapi_secret", "")
         self.mjapi_models:list = self._get_value("mjapi_models",[])
-        self.mjapi_model_select:str = self._get_value("mjapi_model_select","baseline")
+        self.mjapi_model_select_4p: str = self._get_value("mjapi_model_select_4p", "4p-finetuned-b1")
+        self.mjapi_model_select_3p: str = self._get_value("mjapi_model_select_3p", "3p-beta-4")
         
         # Automation settings
         self.enable_automation:bool = self._get_value("enable_automation", False, self.valid_bool)
