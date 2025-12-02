@@ -84,6 +84,7 @@ class MjaiType:
     NUKIDORA = "nukidora"       # extra added. 3P Mahjong only
     END_KYOKU = 'end_kyoku'
     END_GAME = 'end_game'
+    KITA = "kita"
 
 
 def mask_bits_to_binary_string(mask_bits):
