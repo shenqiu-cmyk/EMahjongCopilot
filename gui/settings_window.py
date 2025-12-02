@@ -16,8 +16,8 @@ class SettingsWindow(tk.Toplevel):
         super().__init__(parent)
         self.st = setting
 
-        self.geometry('700x675')
-        self.minsize(700,675)        
+        self.geometry('700x700')  # 稍微增加高度以容纳新的控件
+        self.minsize(700,700)        
         # self.resizable(False, False)
         # set position: within main window
         parent_x = parent.winfo_x()
@@ -161,30 +161,37 @@ class SettingsWindow(tk.Toplevel):
         string_entry = ttk.Entry(main_frame, textvariable=self.mjapi_url_var, width=std_wid*4)
         string_entry.grid(row=cur_row, column=1,columnspan=3,  **args_entry)
         
-        # # MJAPI user
-        # cur_row += 1
-        # _label = ttk.Label(main_frame, text=self.st.lan().MJAPI_USER)
-        # _label.grid(row=cur_row, column=0, **args_label)
-        # self.mjapi_user_var = tk.StringVar(value=self.st.mjapi_user)
-        # string_entry = ttk.Entry(main_frame, textvariable=self.mjapi_user_var, width=std_wid)
-        # string_entry.grid(row=cur_row, column=1, **args_entry)
-        #
-        # # MJAPI secret
-        # cur_row += 1
-        # _label = ttk.Label(main_frame, text=self.st.lan().MJAPI_SECRET)
-        # _label.grid(row=cur_row, column=0, **args_label)
-        # self.mjapi_secret_var = tk.StringVar(value=self.st.mjapi_secret)
-        # string_entry = ttk.Entry(main_frame, textvariable=self.mjapi_secret_var,width=std_wid*4)
-        # string_entry.grid(row=cur_row, column=1,columnspan=3,  **args_entry)
-        
-        # MJAPI model
+        # MJAPI 4P model
         cur_row += 1
-        _label = ttk.Label(main_frame, text=self.st.lan().MJAPI_MODEL_SELECT)
+        _label = ttk.Label(main_frame, text=self.st.lan().MJAPI_MODEL_SELECT + " (4P)")
         _label.grid(row=cur_row, column=0, **args_label)
-        self.mjapi_model_select_var = tk.StringVar(value=self.st.mjapi_model_select)
-        options = self.st.mjapi_models
-        sel_model = ttk.Combobox(main_frame, textvariable=self.mjapi_model_select_var, values=options, state="readonly", width=std_wid)
-        sel_model.grid(row=cur_row, column=1, **args_entry)
+        
+        # 获取4P模型列表
+        models_4p = [m for m in self.st.mjapi_models if "4p" in m] if hasattr(self.st, 'mjapi_models') else []
+        if not hasattr(self.st, 'mjapi_model_select_4p') or not self.st.mjapi_model_select_4p:
+            # 设置默认值
+            self.st.mjapi_model_select_4p = models_4p[0] if models_4p else ""
+            
+        self.mjapi_model_select_4p_var = tk.StringVar(value=self.st.mjapi_model_select_4p)
+        sel_model_4p = ttk.Combobox(main_frame, textvariable=self.mjapi_model_select_4p_var, 
+                                   values=models_4p, state="readonly", width=std_wid)
+        sel_model_4p.grid(row=cur_row, column=1, **args_entry)
+        
+        # MJAPI 3P model
+        cur_row += 1
+        _label = ttk.Label(main_frame, text=self.st.lan().MJAPI_MODEL_SELECT + " (3P)")
+        _label.grid(row=cur_row, column=0, **args_label)
+        
+        # 获取3P模型列表
+        models_3p = [m for m in self.st.mjapi_models if "3p" in m] if hasattr(self.st, 'mjapi_models') else []
+        if not hasattr(self.st, 'mjapi_model_select_3p') or not self.st.mjapi_model_select_3p:
+            # 设置默认值
+            self.st.mjapi_model_select_3p = models_3p[0] if models_3p else ""
+            
+        self.mjapi_model_select_3p_var = tk.StringVar(value=self.st.mjapi_model_select_3p)
+        sel_model_3p = ttk.Combobox(main_frame, textvariable=self.mjapi_model_select_3p_var, 
+                                   values=models_3p, state="readonly", width=std_wid)
+        sel_model_3p.grid(row=cur_row, column=1, **args_entry)
         
         _label = ttk.Label(main_frame, text=self.st.lan().LOGIN_TO_REFRESH)
         _label.grid(row=cur_row, column=2, **args_entry)
@@ -293,9 +300,11 @@ class SettingsWindow(tk.Toplevel):
         akagi_url_new = self.akagiot_url_var.get()
         akagi_apikey_new = self.akagiot_apikey_var.get()
         mjapi_url_new = self.mjapi_url_var.get()
-        # mjapi_user_new = self.mjapi_user_var.get()
-        # mjapi_secret_new = self.mjapi_secret_var.get()
-        mjapi_model_select_new = self.mjapi_model_select_var.get()        
+        
+        # 新的 MJAPI 模型选择
+        mjapi_model_select_4p_new = self.mjapi_model_select_4p_var.get()
+        mjapi_model_select_3p_new = self.mjapi_model_select_3p_var.get()
+        
         if (
             self.st.model_type != model_type_new or
             self.st.model_file != model_file_new or
@@ -303,9 +312,8 @@ class SettingsWindow(tk.Toplevel):
             self.st.akagi_ot_url != akagi_url_new or
             self.st.akagi_ot_apikey != akagi_apikey_new or
             self.st.mjapi_url != mjapi_url_new or
-            # self.st.mjapi_user != mjapi_user_new or
-            # self.st.mjapi_secret != mjapi_secret_new or
-            self.st.mjapi_model_select != mjapi_model_select_new
+            getattr(self.st, 'mjapi_model_select_4p', '') != mjapi_model_select_4p_new or
+            getattr(self.st, 'mjapi_model_select_3p', '') != mjapi_model_select_3p_new
         ):
             self.model_updated = True
         
@@ -338,9 +346,10 @@ class SettingsWindow(tk.Toplevel):
         self.st.akagi_ot_url = akagi_url_new
         self.st.akagi_ot_apikey = akagi_apikey_new
         self.st.mjapi_url = mjapi_url_new
-        # self.st.mjapi_user = mjapi_user_new
-        # self.st.mjapi_secret = mjapi_secret_new
-        self.st.mjapi_model_select = mjapi_model_select_new
+        
+        # 保存新的 MJAPI 模型选择
+        self.st.mjapi_model_select_4p = mjapi_model_select_4p_new
+        self.st.mjapi_model_select_3p = mjapi_model_select_3p_new
         
         self.st.auto_idle_move = self.auto_idle_move_var.get()
         self.st.auto_dahai_drag = self.auto_drag_dahai_var.get()
